@@ -41,7 +41,7 @@ class NoteRepositoryImpl implements NoteRepository {
   }
 
   @override
-  Future<Either<String, Unit>> updateNote(int id, Note updatedNote) async {
+  Future<Either<String, Unit>> updateNote(int? id, Note updatedNote) async {
     try {
       await _noteRemoteDataSource.updateNote(updatedNote.toModel());
       return Right(unit);

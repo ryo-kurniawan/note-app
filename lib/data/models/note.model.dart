@@ -22,7 +22,7 @@ class NoteModel extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      if (id != null) 'id': id,
+      'id': id,
       'title': title,
       'content': content,
     };

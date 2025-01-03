@@ -12,6 +12,18 @@ class Note extends Equatable {
     required this.content,
   });
 
+  Note copyWith({
+    int? id,
+    String? title,
+    String? content,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+    );
+  }
+
   // Remove all new lines
   String get cleanContent => content.replaceAll('\n', '');
 

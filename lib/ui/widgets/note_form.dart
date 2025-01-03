@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -9,54 +8,50 @@ class NoteForm extends StatelessWidget {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final NoteController noteController = Get.find<NoteController>();
-  NoteForm({super.key});
+  final Note? note;
+  final void Function(Note) onSave;
+
+  NoteForm({super.key, this.note, required this.onSave});
 
   @override
   Widget build(BuildContext context) {
+    // Menggunakan controller yang sudah ada jika ada catatan
+    titleController.text = note?.title ?? '';
+    contentController.text = note?.content ?? '';
+
     return AlertDialog(
-      title: const Text('Add Note'),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(
-          controller: titleController,
-          decoration: const InputDecoration(labelText: 'Title'),
+      title: Text(note == null ? 'Add Note' : 'Edit Note'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: titleController,
+            decoration: const InputDecoration(labelText: 'Title'),
+          ),
+          TextField(
+            controller: contentController,
+            decoration: const InputDecoration(labelText: 'Content'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
         ),
-        TextField(
-          controller: contentController,
-          decoration: const InputDecoration(labelText: 'Content'),
+        ElevatedButton(
+          onPressed: () {
+            final newNote = Note(
+              id: note?.id, // ID tetap ada jika mengedit
+              title: titleController.text,
+              content: contentController.text,
+            );
+            onSave(newNote); // Simpan catatan baru atau yang diubah
+            Navigator.pop(context); // Tutup dialog
+          },
+          child: const Text('Save'),
         ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (titleController.text.trim().isEmpty ||
-                    contentController.text.trim().isEmpty) {
-                  Get.snackbar(
-                    'Error',
-                    'Title and content cannot be empty',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                } else {
-                  // Tambahkan catatan melalui NoteController
-                  noteController.addNote(Note(
-                    title: titleController.text.trim(),
-                    content: contentController.text.trim(),
-                  ));
-                  Navigator.pop(context); // Tutup dialog
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ]),
+      ],
     );
   }
 }

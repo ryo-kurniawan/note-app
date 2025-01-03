@@ -25,8 +25,9 @@ class NoteController extends GetxController {
   Future<void> addNote(Note note) async {
     final result = await repo.addNote(note);
     result.fold(
-      (failure) => Get.snackbar(
-          'Error', failure.toString()), // Tangani error dengan pesan deskriptif
+      (failure) {
+        Get.snackbar('Error', failure.toString());
+      }, // Tangani error dengan pesan deskriptif
       (success) => notes.add(note), // Tambahkan catatan ke daftar jika berhasil
     );
   }
@@ -41,15 +42,31 @@ class NoteController extends GetxController {
     );
   }
 
-  Future<void> updateNote(int id, Note updatedNote) async {
+  Future<void> updateNote(int? id, Note updatedNote) async {
+    if (id == null) {
+      Get.snackbar('Error', 'Note ID cannot be empty');
+      return;
+    }
     // Sesuaikan id dengan tipe String
     final result = await repo.updateNote(id, updatedNote);
     result.fold(
-      (failure) => Get.snackbar('Error', failure.toString()),
+      (failure) {
+        Get.snackbar(
+          'Error',
+          'Failed to update the note: ${failure.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      },
       (success) {
         final index = notes.indexWhere((note) => note.id == id);
         if (index != -1) {
-          notes[index] = updatedNote; // Perbarui catatan jika ditemukan
+          notes[index] = updatedNote.copyWith(id: id); // Sinkronisasi data
+          update(); // Beritahu UI bahwa ada perubahan
+          Get.snackbar(
+            'Success',
+            'Note updated successfully!',
+            snackPosition: SnackPosition.BOTTOM,
+          );
         }
       },
     );
